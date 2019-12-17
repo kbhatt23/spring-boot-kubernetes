@@ -1,0 +1,19 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-management-service
+  labels:
+    app: user-management-service
+spec:
+  ports:
+    - protocol: "TCP"
+      # Port accessible inside cluster
+      port: 8082
+      # Port to forward to inside the pod
+      targetPort: 8082
+      # Port accessible outside cluster
+      nodePort: 30002
+  selector:
+    app: user-management-service
+  type: LoadBalancer

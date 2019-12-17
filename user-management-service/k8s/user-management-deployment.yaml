@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-management-service
+  labels:
+    app: user-management-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: user-management-service
+  template:
+    metadata:
+      labels:
+        app: user-management-service
+    spec:
+      serviceAccountName: user-management-service
+      containers:
+      - name: user-management-service
+        image: kbhatt23/user-management-service:0.0.1-SNAPSHOT
+        ports:
+        - containerPort: 8082
+        env:
+        - name: USER_SERVICE_HOST
+          value: "user-service"
+        - name: USER_PORT
+          value: "8081"          

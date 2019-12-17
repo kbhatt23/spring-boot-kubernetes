@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mysql-config
+data:
+  database-name: kubernetes-db
+  database-user: user-kubernetes
+  database-host: mysql
+  database-password: kubernetespassword
+  database-root-password: rootpassword  
