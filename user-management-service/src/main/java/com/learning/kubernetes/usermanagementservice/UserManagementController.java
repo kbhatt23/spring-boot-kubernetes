@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
+import com.learning.kubernetes.usermanagementservice.environment.InstanceInformationService;
+
 @RestController
 public class UserManagementController {
 
@@ -19,6 +21,9 @@ public class UserManagementController {
 	
 	@Autowired
 	private Environment env;
+	
+	@Autowired
+	private InstanceInformationService instanceService;
 	
 	@GetMapping("/user-names")
 	public List namesList(){
@@ -39,6 +44,7 @@ public class UserManagementController {
 	
 	@GetMapping("/test")
 	public String test() {
-		return "jai shree ram";
+		System.out.println("logs ke sath testing karo");
+		return "jai shree ram v4 "+ instanceService.retrieveInstanceInfo();
 	}
 }
