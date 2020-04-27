@@ -1,0 +1,22 @@
+docker run -d -e MYSQL_ROOT_PASSWORD=kubernetessecret -e MYSQL_USER=kubernetes-user -e MYSQL_PASSWORD=kubernetessecret -e MYSQL_DATABASE=kubernetesDB --name mysql -p 3306:3306 --network=spring-kubernetes-network mysql:5.7
+
+
+without network:
+
+docker run -d -e MYSQL_ROOT_PASSWORD=kubernetessecret -e MYSQL_USER=kubernetes-user -e MYSQL_PASSWORD=kubernetessecret -e MYSQL_DATABASE=kubernetesDB --name mysql -p 3306:3306 mysql:5.7
+
+
+To test ingress APIs
+Client API
+http://35.244.241.176/springboot-mysql-client/loadBalancingTest
+
+http://35.244.241.176/springboot-mysql-client/find
+
+http://35.244.241.176/springboot-mysql-client/find/1
+
+
+MYSQL API:
+http://35.244.241.176/springboot-mysql/bhagwan
+
+Hello kubernetes API:
+http://35.244.241.176/hello-kubernetes/test

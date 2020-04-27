@@ -13,12 +13,12 @@ public class HelloWorldController {
 	@Autowired
 	private InstanceInformationService service;
 	
-	private static final Logger LOGGER = LoggerFactory.getLogger(HealthCheckController.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(HelloWorldController.class);
 	
 	@GetMapping("/test")
 	public String test() {
-		LOGGER.info("jai shree ram from docker test using logger");
-		System.out.println("jai shree ram from docker test using println");
+		LOGGER.info("jai shreee ram from docker test using logger");
+		System.out.println("jai shreee ram from docker test using println");
 		return "jai shreee ram "+ "V3 : "+service.retrieveInstanceInfo();
 	}
 

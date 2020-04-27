@@ -1,0 +1,17 @@
+# Please edit the object below. Lines beginning with a '#' will be ignored,
+# and an empty file will abort the edit. If an error occurs while saving this file will be
+# reopened with the relevant failures.
+#
+apiVersion: v1
+data:
+  SERVICE_HOST: springboot-mysql
+  SERVICE_PORT: "9090"
+  HELLO_WORLD_PORT: "8089"
+  HELLO_WORLD_HOST: hello-kubernetes
+kind: ConfigMap
+metadata:
+  name: springboot-mysql-client-config
+  namespace: default
+  resourceVersion: "676800"
+  selfLink: /api/v1/namespaces/default/configmaps/springboot-mysql-config
+  uid: 2d76a3c4-871a-11ea-a5d4-42010a8000f6
