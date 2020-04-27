@@ -1,0 +1,38 @@
+version: "3"
+services:
+ mysql:
+    image: "mysql:5.7"
+    container_name: "mysql"
+    environment:
+      MYSQL_ROOT_PASSWORD: kubernetessecret
+      MYSQL_USER: kubernetes-user
+      MYSQL_PASSWORD: kubernetessecret
+      MYSQL_DATABASE: kubernetesDB
+    ports:
+      - "3306:3306"
+    volumes:
+      - 'mysql_data:/var/lib/mysql'
+    networks:
+      - db-network
+
+ springboot-mysql:
+    image: "kbhatt23/springboot-mysql:0.0.1-SNAPSHOT"
+    container_name: "springboot-mysql"
+    depends_on:
+      - mysql
+    environment:
+      RDS_HOSTNAME: mysql
+      RDS_USERNAME: kubernetes-user
+      RDS_PASSWORD: kubernetessecret
+    ports:
+      - "9090:9090"
+    networks:
+      - db-network
+   
+networks:
+  db-network:
+
+volumes:
+  mysql_data:
+  
+  

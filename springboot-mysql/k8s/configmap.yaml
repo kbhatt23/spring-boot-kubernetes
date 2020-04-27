@@ -1,0 +1,19 @@
+# Please edit the object below. Lines beginning with a '#' will be ignored,
+# and an empty file will abort the edit. If an error occurs while saving this file will be
+# reopened with the relevant failures.
+#
+apiVersion: v1
+data:
+  RDS_HOSTNAME: mysql
+  MYSQL_DATABASE: kubernetesDB
+  MYSQL_PASSWORD: kubernetessecret
+  MYSQL_ROOT_PASSWORD: kubernetessecret
+  MYSQL_USER: kubernetes-user
+kind: ConfigMap
+metadata:
+  creationTimestamp: "2020-04-25T17:28:28Z"
+  name: springboot-mysql-config
+  namespace: default
+  resourceVersion: "676800"
+  selfLink: /api/v1/namespaces/default/configmaps/springboot-mysql-config
+  uid: 2d76a3c4-871a-11ea-a5d4-42010a8000f6

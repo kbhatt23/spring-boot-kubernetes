@@ -1,0 +1,75 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: springboot-mysql-client
+  name: springboot-mysql-client
+  namespace: default
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  # older pods are delete after giving 40 seconds to new pods to be actually running the spring service
+  minReadySeconds: 30
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: springboot-mysql-client
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: springboot-mysql-client
+    spec:
+      containers:
+      - image: kbhatt23/springboot-mysql-client:0.0.2
+        env:
+        - name: SERVICE_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: springboot-mysql-client-config
+              key: SERVICE_HOST
+        - name: SERVICE_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: springboot-mysql-client-config
+              key: SERVICE_PORT
+        - name: HELLO_WORLD_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: springboot-mysql-client-config
+              key: HELLO_WORLD_PORT
+        - name: HELLO_WORLD_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: springboot-mysql-client-config
+              key: HELLO_WORLD_HOST                  
+        resources: #CHANGE
+          requests:
+            cpu: 100m
+            memory: 512Mi
+          limits:
+            cpu: 400m
+            memory: 1024Mi #256Mi 
+        readinessProbe:
+          httpGet:
+            path: /
+            port: liveness-port
+          failureThreshold: 5
+          periodSeconds: 10
+          initialDelaySeconds: 60
+        livenessProbe:
+          httpGet:
+            path: /
+            port: liveness-port
+          failureThreshold: 5
+          periodSeconds: 10
+          initialDelaySeconds: 60
+        imagePullPolicy: IfNotPresent
+        name: springboot-mysql-client
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30

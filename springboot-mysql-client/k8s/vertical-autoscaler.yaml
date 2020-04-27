@@ -1,0 +1,12 @@
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: springboot-mysql-client-vpa
+spec:
+  targetRef:
+    apiVersion: "apps/v1"
+    kind:       Deployment
+    name:       springboot-mysql-client
+  updatePolicy:
+ # enable the recmommendation from cloud cluster 
+    updateMode: "Off"

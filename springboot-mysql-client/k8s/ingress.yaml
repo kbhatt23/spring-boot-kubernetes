@@ -1,0 +1,22 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: gateway-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /springboot-mysql-client/*
+        backend:
+          serviceName: springboot-mysql-client
+          servicePort: 9091          
+      - path: /hello-kubernetes/*
+        backend:
+          serviceName: hello-kubernetes
+          servicePort: 8089
+      - path: /springboot-mysql/*
+        backend:
+          serviceName: springboot-mysql
+          servicePort: 9090    
