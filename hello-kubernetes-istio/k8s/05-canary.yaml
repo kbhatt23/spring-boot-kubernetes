@@ -1,0 +1,44 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: hello-kubernetes
+spec:
+  hosts:
+    - "*"
+  gateways:
+    - http-gateway
+  http:
+    - match:
+        - uri:
+# we need to give exact api url and not just root url        
+            exact: /hello-kubernetes/test
+      route:
+        - destination:
+            host: hello-kubernetes
+            subset: version1
+          weight: 20
+        - destination:
+            host: hello-kubernetes
+            subset: version2
+          weight: 80  
+
+#No need of mirro in canary deployment
+#      mirror:
+#        host: hello-kubernetes
+#        subset: v1
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: hello-kubernetes
+spec:
+  host: hello-kubernetes
+  subsets:
+    - name: version1
+      labels:
+# we have a loable in deplyment with name version and value as v1 for container and replica set      
+        version: v1
+    - name: version2
+      labels:
+# we have a loable in deplyment with name version and value as v2 for container and replica set       
+        version: v2

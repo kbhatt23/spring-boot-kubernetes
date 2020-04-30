@@ -1,0 +1,181 @@
+kubernetes account : kanishkeminem@gmail.com
+
+github url for learning kubernetes : https://github.com/in28minutes/kubernetes-crash-course
+
+all commands:
+https://github.com/in28minutes/kubernetes-crash-course#commands-executed-during-the-course
+
+kubernetes proveds below
+a. autoscaling
+b.self healing
+c. no downtime deployment strategies
+d. auto load balancing
+e. monitoring tools etc
+
+We can install kubernetes on EC2 instance or azure VM but then we have to configure everything from scratch
+bettwe way will be to create account on google cloud platform/or any other platform
+Each cloud platform provides service to run kubernetes -> AKS -> azure kubernets service
+GKE : Google kubernetes engine for google cloud platform
+EKS : elsatic kubernetes service for amazon
+
+Toughest part is to create kubernetes cluseter in kubernetes engine and google provide easy way to do it
+
+A cluster is a logical unit of kubernetes engine container set of nodes(services)
+It can contain one master node(or more in case of high load systems) and other slave nodes(workers) -> actual docker services that we create
+
+We need to enable google cloud sheel to run commands
+To connect to cluster get below command from connect icon in cluster section
+
+gcloud container clusters get-credentials kbhatt23-cluster --zone us-central1-a --project driven-strength-274412
+
+kubectl statnds for kubernetes controller
+
+on updting image of existing deployment
+REplciation set increases pod of image 2 first and then drops older pod and then it increases pod replication of v2 to one more and then reduces v1 pod and so on
+It ensures at any time 3 replicaas or defined replicas are always there not mnore not less
+default deployment straegy is rolling update :above explained deployment update is example of rolling update
+
+we can still create pods using replica sets however that wont help in deployment strategies
+
+Deployement:
+It handles deployment strategies of a service. Incase new versions are to be deployed deployment will be same
+but replication set will be new
+we need to just set image to same deployment and a new recplication set will get created and that will pull new image and run the contianer in new pods.
+Older pods will be dleted . IT will depend on deployment strategy
+
+Replicatin set
+It ensures replicaas state of each group of pods. It holds the image and tag. for each new version there will be one RS that have desired state
+Deployment will be same , replication set will be one each for each version. and each of these RS will manage pods that are running containers
+
+Pods. Smallest unit in kubernetes
+It is logical collection of containers. can have one or more containers , usually have one container
+
+parts of master node:
+- api service
+- etcd
+- scheduler
+- controller manager
+
+parts of worker node:
+- kubelet
+- kube proxy
+- container engine
+- pods
+
+While kubernetes executes a docker container in pod. it adds an environment variable of name "HOSTNAME" whihc gives the pod id associated with taht pod
+In case of multipke pods excution using replcation set we can print this to diffrentiate different replcas of pods
+
+wathc command to hit url every 2 second
+watch curl url
+
+Replicaset can be created using command or yaml file but can not have deployment strategy
+It can create pod and replica set thats it, we can not switch image etc
+
+readiness of container can be done in 2 ways:
+minReadySeconds : second : after this n seconds pod will be consdered live and old pod will be dleted whle deployingnew image
+readinessProble : complex and better thanminReadySeconds
+
+We cna create pods without even Deployment using ReplciaSet, hoiwever deployment strategies will goaway
+
+Anyway we link service directly to container label hence no need of deployment for that as well
+
+If we create pods and link service to container in pods using replica set then if we modify the yaml and put new version of image
+It creates new replica set but do not roll out old pod and put service to link to new pods, infact new pods are not created
+As job of replica set is to mainiat desired instances of pod whic are already there, if we add one repliuca then it will create one more pod and do not delete old pod
+
+Kompose is a tool that takes input as docker-compose file and create kubernetes deployable yamls
+
+Kubernetes automaticall adds environment variable for host and port of each service running at that time
+With the help of this we cna call that service to implement microserive.
+Ruke for this {SERVICE_NAME}_SERVICE_HOST && {SERVICE_NAME}_SERVICE_PORT . we cna fetch using evn.getproperty or @value(${property})
+However this happens only during pod is made up
+If at that time when pod was going up if one of the service was down we would miss thi environment variable and hence this appriach is not good
+instead we shoould diretyl call the service using service name directly
+
+Ingress is a global load balancer that do rever proxying to back end service, Hence it can be considered as api gateway
+It is a global load balancer and hence for toher services we can remove the type LoadBalancer to NodePort. As loadbalancers are costly we can use just one and let it route to other back end services
+whihc are of nodeport type
+
+Spring cloud kubernetes project
+It provides features written in spring cloud way yo be integrated with kubernetes
+mainly  below features are present:
+a. service discovery : instead of eureka can use service discovery and registration through kubernetes DNS. We can use @EnableDiscoveryClient and other DiscoveryClient, Feign Clinet features 
+	to call API. Meaning code will be old way of spring cloud just remove eureka and add cloud kubernetes discovery to get it working
+b. load baclnacing: In spring cloud we could use riboon load balancer . here we can just add our cloud kubernetes all deplencey and old code will behave in new way.
+		But we need to add service account and accountrolebinding to allow access for ribbon to integrate with kubernetes DNS service discovery
+c. config : we can import all the configMap properties at one go instead off putting env variables from configMapRef
+       We just need to add depdency of cloud config kubernbetes and all the properties from configMap with name same as service name will get imported with all the proeprties of config map
+d. automaticall kuberntes profile is active -> hence we can use application-kuberntes.properties
+
+There are 2 ways to autoscale:
+a. horizontal auto scaler : enabled by default
+	In case the current pod CPU utilization crosses a limit we create a new pod in same node or another node based on availability Load balancing happens on its own by DNS kubernetes
+	Steps:
+	We create a yaml of kind horizontalpodsautoscaler . give any name and link deployment name to it and put cpu percent utlization, give min and max pods
+
+b. vertical auto scaler: 
+	We need to enabled it while creating cluster or we cna edit current cluster config to enable vertical autoscaler
+	In case of a limit the resource size of a pod increases. It is not good practise to keep this autoscaler auto
+	Instead we can get recomendation and set size accoring to that manually.
+	Steps:
+	We can create yaml of verticalpodautoscaler and give deployment name liniing to it and give mode to modeoff ,. we can get recommentaion using simple get command
+
+
+
+
+
+Same Pod can run mutiple containers, All these containers will share the same resources.
+All these containers have to be sharing same resoruces
+Also scaling happens at overlal pod level meaning sacling up meaning sacling up 2 instances of each containers. These cases are highly unlikely
+Thats why in istio side car instead of making single container containing istio depeneencies we can create another image and run another container in same pod
+
+This means both the container(main service image) and side car image share same resources and can be sacled together in same way.
+
+Benefits of service mesh
+We can use common functionlities like logging, monitoring, load balancing, service discover at one place one image
+We cna run this image in a container along with all the individual containers within same pod. These will share same resource as well as scaling happens all together for thme
+
+All communication will happen though this side car container and all the common features can be kept here and hereby reducing the size of main controller
+
+In istio cluster we do not create simple gateway like ingress
+Instead we create a istio gateway and also configure istio virtual service which have routing rules to redirect o indepndent service
+This istio virtual service can help in redirections like redirecting 50 percent of traffic to one and 50 percent to other, mirroing etc
+
+Default deployment strategies in kubernetes:
+a. rollingupdate: It is default one meeaning if no strategy is given it pick this one.
+		 -> in this first based on max surge new pods are created and based on readinessprobe/minreadysecond it is conisdere to be up and then it drops old pods and process continue
+		-> Simultaneoulsy during deployment new and old version are sent to user. It also takes a lot of time if number of pods are more.
+b. recreate: It first deletes old pods synchronously and once all pods are dleted it created new pods one by one. Considered safe only for SQL migration
+
+complex deployment like cancary, blue green , mirroring are used when the same service are calling multiplke version of deployment/image
+
+Total sequence of layer oin this case
+
+istio gateway -> istio virtual service -> servie
+in case of complex deployment(routing between different version of same image)
+istio gateway -> istio virtula service -> istio destination rule -> service
+
+mirroriung means: request is actually processed by one and response is returned according to that subset/version of deployment,
+     		 -> however same requsst goes to other version kept in mirroring section. This can help us test new version and later on we can swith complety to other one
+
+Mirroing is also known as blue green deployment eighter blue is liver or green is liver but other one is also getting the request but not proceesing it
+
+Canary Deployment: In canary deployment we share the laod between two versions at the same time. We can configure weightage between the two version.In bluegreen/mirrong
+flow goes to only one and response comes from one but the second version also get request jiust for testing
+In canary load is dvided and n number of versions can be live and we can siwth between these versions.
+
+Stackdriver is a based on google cloud and not present in other cloud platforms,we should move to cloud neutral solutions
+
+Kiali is a tool to monitor service mesh. Here we can have visiblity of webservices , whihc webservice calls what, status of workloads and service.We can see log files of each service.
+Basically kiali is used to monitor whole service mesh
+
+Promethues is a time based database like share market price etc
+IT keeps on taking new data and we can see current value at any given time
+This is used by graphana dahsboard to view the istio performace mettric , etc, BAsically grapahan is a graphical dashboard for metrics
+like performance , CPU utilization etc
+
+
+Jeygar is a tool for distributed tracing follwing open tracin API contract
+It is highly costly and provides info to a very minute level
+a. We need to set yegar dependency open tracing dependency in pom.xml
+b. add environment variables in deployment file for environment variables for jaygar like service name , tracing rulkes etc

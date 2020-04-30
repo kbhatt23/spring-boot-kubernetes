@@ -1,0 +1,37 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose-windows-amd64.exe convert
+    kompose.version: 1.19.0 (f63a961c)
+  creationTimestamp: null
+  labels:
+    app: springboot-mysql
+  name: springboot-mysql
+spec:
+  replicas: 2
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose-windows-amd64.exe convert
+        kompose.version: 1.19.0 (f63a961c)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: springboot-mysql
+    spec:
+      containers:
+      - env:
+        - name: RDS_HOSTNAME
+          value: mysql
+        - name: RDS_PASSWORD
+          value: kubernetessecret
+        - name: RDS_USERNAME
+          value: kubernetes-user
+        image: kbhatt23/springboot-mysql:0.0.1-SNAPSHOT
+        name: springboot-mysql
+        ports:
+        - containerPort: 9090
+        resources: {}
+      restartPolicy: Always
+status: {}

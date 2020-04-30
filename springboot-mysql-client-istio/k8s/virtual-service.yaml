@@ -1,0 +1,18 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: springboot-mysql-client
+spec:
+  hosts:
+  - "*"
+  gateways:
+  - http-gateway                      # 1
+  http:
+  - match:
+    - uri:
+        prefix: /springboot-mysql-client
+    route:
+    - destination:
+        host: springboot-mysql-client             # 2
+        port:
+          number: 9091

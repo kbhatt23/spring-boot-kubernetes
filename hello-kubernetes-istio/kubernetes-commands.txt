@@ -1,0 +1,82 @@
+To save cost from cluster use below commands
+
+Below command will shutdown nodes from cluster and hence cost will be reduces
+- gcloud container clusters resize kbhatt23-cluster --zone us-central1-a --num-nodes 0
+
+Below Command will start the cluster nodes so that we can continue learning
+- gcloud container clusters resize kbhatt23-cluster --zone us-central1-a  --num-nodes 3
+
+
+Below creates deployment pods and replication set from image
+- kubectl create deployment {name} --image=user/image:tag
+
+Below creates service and exposes based on type: LoadBalancer will expose externall directly and no need of ingress load balancer
+- kubectl expose deployment {name} --type=LoadBalancer --port=8089
+
+- kubectl get events --sort-by=.metadata.creationTimestamp
+
+ command to view all the master node componets like scheudler,etcd,controller manager, api service
+- kubectl get componentstatuses
+
+command to enable autoscaling on lcuter lever to add new nodes based on load:
+- gcloud container clusters create kbhatt23-cluster \
+--zone us-central1-a \
+--node-locations us-central1-a,us-central1-b,us-central1-f \
+--num-nodes 2 --enable-autoscaling --min-nodes 1 --max-nodes 4
+
+command to enable vertical pod autosacling for a cluster
+- gcloud container clusters update kbhatt23-cluster --enable-vertical-pod-autoscaling
+
+configure Verticlal pod autoscaler recommendation:
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: currency-exchange-vpa
+spec:
+  targetRef:
+    apiVersion: "apps/v1"
+    kind:       Deployment
+    name:       currency-exchange
+  updatePolicy:
+    updateMode: "Off"
+
+to get vertical autoscaling recommendation:
+- kubectl get vpa currency-exchange-vpa --output yaml
+
+to autoscale horizonatlly:
+- kubectl autoscale deployment springboot-mysql --max=4 --min=1 --cpu-percent=20
+
+Create a cluster with stackdriver enabled:
+kbhatt23-cluster-stackdriver
+
+gcloud beta container clusters create kbhatt23-cluster-stackdriver \
+  --zone=us-central1-a \
+  --project=driven-strength-274412 \
+  --cluster-version=1.14.10-gke.27 \
+  --enable-stackdriver-kubernetes
+
+Enabling Istio with promethiues, graphana , kiali , tacing etc:
+
+- kubectl create namespace istio-system
+- curl -L https://git.io/getLatestIstio | ISTIO_VERSION=1.2.2 sh -
+- cd istio-1.2.2
+- for i in install/kubernetes/helm/istio-init/files/crd*yaml; do kubectl apply -f $i; done
+- helm template install/kubernetes/helm/istio --name istio --set global.mtls.enabled=false --set tracing.enabled=true --set kiali.enabled=true --set grafana.enabled=true --namespace istio-system > istio.yaml
+- kubectl apply -f istio.yaml
+
+enabling istio side car container injection for every pod:
+- kubectl label namespace default istio-injection=enabled
+
+commadn to fetch all pods under istio-system created aboe
+- kubectl get pods --namespace={istio-system-name}
+
+command to port forward kialin to localhost:
+- kubectl port-forward \
+    $(kubectl get pod -n istio-system -l app=kiali \
+    -o jsonpath='{.items[0].metadata.name}') \
+    -n istio-system 20001
+
+
+
+comand to port forward yaegar to localhost:
+- kubectl port-forward -n istio-system $(kubectl get pod -n istio-system -l app=jaeger -o jsonpath='{.items[0].metadata.name}') 16686
