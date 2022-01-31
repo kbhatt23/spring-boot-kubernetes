@@ -1,0 +1,139 @@
+-=-=-=-kops instance setup-=-=-=-=-=
+connect to putty to ssh ec2 instance : https://www.clickittech.com/aws/connect-ec2-instance-using-ssh/
+
+curl -Lo kops https://github.com/kubernetes/kops/releases/download/$(curl -s https://api.github.com/repos/kubernetes/kops/releases/latest | grep tag_name | cut -d '"' -f 4)/kops-darwin-amd64
+chmod +x ./kops
+sudo mv ./kops /usr/local/bin/
+check if kops is installed : kops version
+
+now install kubectl
+curl -Lo kubectl https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/darwin/amd64/kubectl
+chmod +x ./kubectl
+sudo mv ./kubectl /usr/local/bin/kubectl
+check if kubectl is installed : kubectl version
+
+Create iam user group with 7 listed policy full access: https://github.com/kubernetes/kops/blob/master/docs/getting_started/aws.md
+name : kops
+
+create iam user under above kops user group
+name: kops (same as group)
+
+then configure iamuser in ec2 instance using aws configure command
+
+
+export NAME=kbhatt23-cluster.k8s.local
+export KOPS_STATE_STORE=s3://kops-custom-state
+kops create cluster --zones ap-south-1a,ap-south-1b,ap-south-1c ${NAME}
+
+the above steps create config for k8s cluster that kops uses
+
+steps to actually run the k8s cluster
+
+kops update cluster ${NAME} --yes --admin=87600h
+kops export kubecfg --admin=87600h
+
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=stop kops cluster-=-=-=-=-=-=-=-=-=-=--==-=-=-=-=-=-
+
+--=-=-=-=-=- kops command to stop all kubernetes cluster : automatically removes auto scaling group(that ensures master and slave nodes gets running if terminated)
+			, ec2 instance(offcourse after autoscaling groups are deleted) , load balancers, ebs, s3 etc
+			
+	kops uses s3 as state store
+	
+	---- kops delete cluster ${NAME} --yes
+	after this we should see all master node ec2 instances terminated, 0 autoscaling groups, 0 load balancers, a fake EBS volume (its free)
+
+- after this we can pause/stop the bootstrap ec2 instance
+
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=restart kops cluster-=-=-=-=-=-=-=-=-=-=--==-=-=-=-=-=-
+export NAME=kbhatt23-cluster.k8s.local
+export KOPS_STATE_STORE=s3://kops-custom-state
+kops create cluster --zones ap-south-1a,ap-south-1b,ap-south-1c ${NAME}
+kops update cluster ${NAME} --yes --admin=87600h
+
+
+
+-=-=-=-=-=-=-=-=setup EKS cluster-=-=-=-=-=-=-=-=-=-=-=-=-
+
+
+WARNING - you MUST delete your cluster when finished.
+-----------------------------------------------------
+
+eksctl delete cluster fleetman
+
+
+1: Install eksctl
+------------------
+
+curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+
+sudo mv /tmp/eksctl /usr/local/bin
+
+2: Update AWS CLI to Version 2
+------------------------------
+
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+unzip awscliv2.zip
+sudo ./aws/install
+
+Now log out of your shell and back in again.
+
+3: Set up a Group
+-----------------
+
+Set up a group with the Permissions of:
+
+AmazonEC2FullAccess
+IAMFullAccess
+AWSCloudFormationFullAccess
+
+You also need to create an inline policy, using the following:
+--------------------------------------------------------------
+
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "eks:*",
+      "Resource": "*"
+    },
+    {
+      "Action": [
+        "ssm:GetParameter",
+        "ssm:GetParameters"
+      ],
+      "Resource": "*",
+      "Effect": "Allow"
+    }
+  ]
+}
+
+
+4: Add a user to the group
+--------------------------
+
+Use the console to add a user to your new group, and then use "aws configure" to input the credentials
+
+5: Install kubectl
+------------------
+
+Warning: check the current default kubernetes version supplied with EKS and install a matching version of kubectl
+
+export RELEASE=<enter default eks version number here. Eg 1.17.0>
+curl -LO https://storage.googleapis.com/kubernetes-release/release/v$RELEASE/bin/linux/amd64/kubectl
+chmod +x ./kubectl
+sudo mv ./kubectl /usr/local/bin/kubectl
+
+Check the version with "kubectl version --client"
+
+
+6: Start your cluster!
+----------------------
+
+eksctl create cluster --name fleetman --nodes-min=3
+
+
+
+-=-=-=-=- grapahana credentials-=-=-=-
+admin/prom-operator
+

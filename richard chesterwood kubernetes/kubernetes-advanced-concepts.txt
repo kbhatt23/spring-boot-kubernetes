@@ -1,0 +1,492 @@
+jai shree ganesh
+
+
+
+- docker and kubernetes is very helpful for devops team as the deployment , management strategy is same across multiple technologies
+  specially in microservices we have different tech stack and hence standardization of deployment and monitoring and management strategy will help devops a lot
+  
+- k8s is an orchestration tool for containers, even a small container like 10 can be challenging on production
+	it helps in monitoring and managing automatically
+    devops guy can not monitor the application containers manually all the time there has to be automatic monitoring
+- orchestration means automatic monitoring and management of computer systems
+- k8s is an automated management and monitoring tools for containers (hence name container orchestrator)
+- docker swarm is also a container orchestration system in built of docker 	
+	easier than kubernetes to learn but have lesser features and also need not seperate installation aws in built in docker
+- minikube uses a virtual machine behind the scene to run kubernetes cluster locally
+	hence we must enable hyperv in the windows machine, anyway we are running docker
+	docker for windows do not run on kernel os directly but run on an auto create virtual machine hence requires hyperv
+
+- if we are using docker desktop running we can enable kubernetes from setting and it will run a docker image of minikube behind the scene
+		so no need to sperately install minikube , let the docker desktop create and run minikube container behind the scene
+- hyperv is a virtualization tool specific to windows 10 pro using which we acn run inbuilt virtual machine
+			so if this is enabled oracle virtual box is not needed and it crashes
+	so for windows 10 pro lets use hyperv and need no to install oracle virtual box
+		but for non hyperv enabled machines we can use oralce virtual box to install minikube and run vm of kubernetes there
+- kubernetes needs .yml files to create the behind the scene infrastructure like vms, servers, etc
+		using same file we can just switch to other clloud provider and this helps a lot
+- minikube itself have a docker daemon running so incase we want to skip docker sperate installation we can directly do using minikube
+ hence minikube vm contains both kubernetes cluster of single node + docker daemon running 
+in same VM we can use both so that we save memory of extra installati9n of docker seperately
+
+- we can create kind: Pod also but with no deplymenr , rs and service
+  hence pod wont be accessible from outside the cluster, use service to expose it
+commands: kubectl get pods -o wide
+		kubectl describe pod podname : check events for debugging if container is not getting up
+		kubectl exec pdname ls
+- we can use exec command on pod to hit the api from within the cluster even without creating the service object
+			as pod is accesible within the cluster and we can use kubectl exec to get into the pod and hit api endpoint for testing even without service
+	sh into pod and able to interactive attached in and excute more commands : 
+kubectl exec -it pranaam-kubernetes sh	
+
+- Pod is ephemeral in nature and they live for shorter period of time
+	however a service is long running object in kubernetes
+	meaning the containers may come up and down in pod and each pod have unique ip , but that can not be exposed to outside world
+	as pods die and that ip wont be accesible to outside world, service is long running object to expose an ip and port for that
+	service object becomes netwrok provider for both inter service communication as well aws exte4rnal world via gateways or directly through load balancer
+	
+	types of service:
+	a. loadbalancer: will create global loadbalancer and pods available globally using port and container port
+	b. clusterip: pods available only within cluster, good for services only used within cluster, port is normal port
+	c. nodeport: pods avialble within intranetwork via nodeport, and inter service communication can happen via port
+			port for inter service communication , for external world only within intra net use nodeport
+			
+-  if we are using kind pod or kind replica set to create pod if we want to change to new image tag
+				it wont work by doing apply -f as deployment strategy wont be there
+		for this we need to remove all pods and then recreate them meaning there will be downtime		
+		
+- in case we updated pod/rs yaml and update verwswion and apply it wont reflect and show up
+			using deployment kind we can ensure this auto deployment using rolling strategy by defaullt
+	rolling strategy means it kills old version pod only when new pod is succesfully launched
+		if image is wrong it wont be able to create enw versio  pod and hence old one wont die at all
+		also at any point of time there will be no downtime as it will kill old pod only when new pod is up and running using minreadyseconds/readinessprobe
+  in case we apply new image , it creates new replica set
+	also it create new r.s only when for that iamge tag it do not exist
+	it first ensure new r.s gets desired state and then only old image tag's r.s desired state is reduce one by one till it is 0
+	this way it ensure if we want to rollback then it need not puill image but just ensure old r.s desired state incrmeneted by one and decrease new iamge tag by 1
+	no downtime and rollback feature available by default
+	
+- in case we are keeping spring boot ap container and mysql container inside same pod then we can access mysql using localhost 
+		as each pod have same ip and resources they can communicate over localhost easily and fawst but makes no sense
+		
+- why not keep 2 microservices in same pod
+	a. can not scale them seperately, load on these will be different
+	b. single point of failure, if one pod goes down both the microservices goes down
+	c. tough to implement healthchecks like livernessprobe and readiness probe
+		as 2 services are exposed how will we consider when the pod is good for load and runing correctly
+	health check in kubernetes ensures that livenessprobe is correct to ensure load baolancer directs rquest to those pod	
+	
+- kubernetes have internal service registration and service discovery using internal dns known as kube-dns
+		it contains key as service name and value as the latest ip of service
+	infact using command kubectl get svc we can view this specific service named kube-dns holding key as service anme and value as ip of service for microservice
+	to correct it the intrnal serviec kube-dns will be a service and it will be working for specific intrnal pods having the functionality to have dns
+	this intrnal pod contains the key as service and value as the ip of that specific service , thos services will be serving their own pods
+	
+- internal kubernetes pods and services are not visible as they are outside default namespace, they come under kube-system namespace	
+- namepsaces are kuberntes objects to group similar woring workloads: pds,rs,service,deployment together
+like all the back end pods/rs/deployment/services can be grouped togehter with namespace back end and same for front end 
+while using kubectl commands we need to pass on this specific namespace so that we see or modify workload of that namespace only : abstraction
+- if not mentioned any namespace it goes to default namespace while get and create or any commands
+	commands: kubectl get ns : find all namespaces
+	kubectl get all -n kube-system : will show even kube-dns services
+	
+- using kube-system namepsace service kube-dns we can use servicename as host name
+		internally it calls kube-dns service to get ip of that specific service name and hence can do the netwrok calls
+		however host shoule be : serviceName.namespace if service to call is outside of default namepsace
+		
+- kubernetes can automate the cloud infrastructure in any cloud vendor
+			using the same yaml files it can create the internal infrastructure hardware in any cloud service
+			
+- minikube can be useful for local development as we wont be working locally on all microservices of the kubernetes cluster
+			so lets just run those few pods and mock others hence minikube is pretty useful
+- in cloud, kubernetes run pods in nodes , node can be logical virtual machines provided by cloud like ec2 instance
+			so we can configure multiple instance/pods to run on multiple nodes , so that each of these pods runs on differetn a.z inside different nodes or ec2 instances
+- in production we never have single worker node, so that not all pods are running on same pod, we can have resilence even in case of node failure
+				pods running on that node will be scheduled to other surviving nodes
+				we can even have multiple master nodes for extreme high availability
+
+- creating a production grade kubernetes cluster is extremely tough
+	so tools like kops and eks comes in to easily setup clsuter using easy commands
+--- kops: kubernetes oeprations , built by same kubernetes team and using this we can use commands to easily create cluster and make it up and running
+	kops can help us create, delete up production level kubernetes clusters
+	kops is older than eks 
+	in kops we can even see the master node, however in eks master node wont be visible
+	we need to manage this master node in kops but not in eks, eg in kops we can see and kill the master node and still worker nodes will keep on working
+	only issue is we wont be able to admin using kubectl commands until master node is again back up, kops do this automatically , it ensures one master is always running
+	in kops we need to monitor, do work on master node but in eks master node is fully amnaged by aws so we need not worry abt it plus we can not even view the master node
+	
+- EKS: elastic kubernetes service
+		no need to manage master node, wont be visible and also not sure how many master node instances are running
+		very famous nowadsya but have poor gui 
+		for commands we need to use third party tools like eksctl
+		tied to AWS as compeltely built in aws and also uses different commands to setup kubernetes cluster
+	
+- EKS is winning in price cost comparatively specially in multiple master node architechture
+   its because in kops we have single master node that too has to be managed by us, if we add more master node for high availability cost increases
+  but in eks it is hidden and fully managed by aws and even for multiple master nodes cost is same and hence wins by short margin   
+  
+- kops ensures that if one node or ec2 instance goes down, the autoscaling groups ensures it gets up as soon as possible
+	kubectl get nodes will take time to reflect the new node, in the mean time master ensures it schedules pods in other running nodes/ec2 instances
+	
+- EKS setup is comparatively more complex using GUI, with time it got better from unusable to complex.
+   but third party command tool eksctl have made it better to manage	
+   
+- in case a running node dies, then kubernetes master ensures that all running pods in this node get rescheudled to survival nodes
+	might take some time but eventually will do it hence better approach is always to keep multiple pods of same micorservice in different a.z nodes or ec2 instances
+	
+- Logging is very importatnt in production level systems and for local devleopment and cluster setup watching pod logs is fine
+		but for a stable cluster we should be able to see old logs new logs historically hence ELK stack is very helpful
+		also remember that logs are within the container or pods and in microservices if health check fails the pod may restart meaning we will loose the log file
+		so for this either we can use persistence volumes or use something like logstach whihc can pull the log data into elastic search and so on
+		
+--- we have pods running inside cluster node and generating logs whihc is empehemral
+		 so we will pod with utility as logstash which keeps on listening to logs created and push to elasticsearch
+		 elasticsearch is a search and analytical engine. it stores the data passed by logstash and store in indexed format which is perfect for fast search through rest apis
+		 we can use elastic search rest apis for querying but that is tough so here comes kibana for providing gui to visualize the elastic search data
+		 kibana can help in visualizing the elastic search indexed data
+
+- ELK structure
+	we have 3 worker node each having pods inside whihc containers are running which are generating logs these are epehemral
+	on each of the worker node we need to ensure one pod of logstash is running whihc will keep on pulling logs statement generated by all the pods
+	-=-= use kind: DaemonSet: same like replica set , here no need to tell replciase instance as internally one instance of pod is always running on each of the nodes
+	 ,,, perfect kind : DaemonSet for logstash
+
+   elasticsearch can be running in aws as seprate service outside the kubernetes cluster,but for simplicity we can keep it running as pods 
+   no need of daemon set as need not to be running always on each of the worker nodes, 2 instances as replicaset will be enough
+    kibana is just of visualizing the elastic search data and hence single pod instance will be ok
+	we know that since elasticsearch holds data like d.B it needs volume
+	
+- even in cloud specially for testing purpose we can keep service type as nodeport and using that we need to define seperate nodeport
+   within the cluster other service can call service with its full qualified name as ip and port as normal port to work
+   but if within vpn or if within netwrok using nodeport we can call it
+   in cloud like aws we can use ip/host/public host of any specific worker node, also add security group for all inbound tcp for specific nodeport: starts with 30 thousand
+   in browser use ip of any ec2 instance and port as nodeport it can work even without loadbalancer
+   
+   
+- prometheus and graphana are greate however it does not make sense to keep sys ops dev continuously monitoring using graphana/prometheus
+   better we use automatic alerts that gets triggerred when there is emergency in prometheus metrics   
+   
+- promethues ui provides alerts section where there are a lot of predefined alerts created
+	it has expression as to when this alert gets triggered like cpu utilization of a pod > 25/100 for last 15 mins
+	meaning some issue with pod with over utilzation then it can trigger a sms/email etc with message defined in the alert
+	using prometheus we can view , edit and make these alerts active
+- watchdog is oob alert created by prometheus which is always active, the purpose of this is to see if alert management system itself is running or not
+  eg if all the nodes goes doen the alert management will go down, so in that case it wont be able to send any message or alert
+ so it is always running and it keeps on sending heartbeat that i am running every 10 mins, if it is not sent then we should understand there is some issue with alert manager itself so we need to validate the nodes  
+ 
+ 
+ --- test slack integration
+ curl -X POST --data-urlencode "payload={\"channel\": \"#aws-alerts\", \"username\": \"webhookbot\", \"text\": \"This is posted to #alerts and comes from a bot named webhookbot.\", \"icon_emoji\": \":ghost:\"}" https://hooks.slack.com/services/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
+ 
+ - kubernetes automatically removes a pod if health check is failing due to maybe node beeing overloaded
+	then replca set reschedule that pod to another node which can be better than previous node
+- kubernetes deleting a pod is not a danger as it is quite commmong, but in case it keeps on restarting and after a threshold times it is not getting up succesfully
+		then that triggers an alarms named podreplcaselapse or similar named
+	this can be a good use case to see how an alert is triggered eg a pod of spring boot app which is not getting up succesfully
+   it keeps on restarting and an alert which waits till 15 mins is triggerred then send message on slack/sms/email
+   the alerts keeps o triggering until issue is fixed and correct pod is updated and also another message is sent to slack saying issue is fixed   
+   
+- prometheus ui provides viewing latest alerts , their rules , if they are active or pending ot running
+   however by default there is no notification rule we need to do that using alertmanager.yaml file secret configure
+- things like pod dying is pretty common in k8s and hence it do not trigger alarms     
+  things like node dying or pod restarting again and again and not getting succesfully up is good use case for alarm triggering
+  if issue is not resolved every 10 mins it keep on sending notification
+  once issue is resolved it stops sending alarm notification and also send one message saying issue is resolved/alarm is off in good way
+  
+- in certain scenarios like devops guy upgrading k8s instance or doing upgrades like security etc on ec2 can cause alarm but these are expected
+  so for that much time beeing devops guys can use alertmanager gui tool to silecnce specific alarm that may trigger for time beeing  
+  remember in the mean time watchdog keeps runnign and sending notification for its correct state, moment it stops sendding heartbeat means big issue with alerting in k8s cluster like ec2 slave nodes beeing down
+  
+- we must ensure the monitoring tool that checks the heartbeat of watchdog is keps outside of k8s cluster and keps in completely different geographical region
+   once heart beat is sent to this location it can run cron job and i no heart beat came in last 20 mins meaning send danger alarm to devops team
+  this is needed so that if k8s cluster down (due to a.z failure in aws) we must be sure that the monitoring tool infrastructure is running so if no heart beat came alarm is triggered   
+
+- in case master node goes down, the services keeps on running fine however any adminstration work wont happen
+    we wont be able to run kubectl commands and hence can not schedule new pods, etcd will be down, scheduler will be down
+    also if any pod goes down replicaset wont work, if whole worker goes down pods wont be rescheudled until master is up, and in this case if there is single replica that service wont work temporarily
+    however aws/gcp provides autoscaling groups which ensures after some time master node is up and then worker node management will be fine	
+  
+  
+-=-=-=-=-=-=-=Advanced kubernetes concepts-=-=-=-=-=-=-=-=-=-
+
+a. resource requests :
+   - request is under resource section inside container definition in the pod yaml definition
+   - can be applicable for cpu utilization and ram memory
+   - dev do the analysis of code and come up with a number for memory/cpu utilization as to what resource is needed for good working of the pod/container
+   - this helps scheduler in master node to think which worker node will be best for running of this pod
+     in case of minikube there is single node and if size of request of memory is greater than remaining RAM error occurs and pod wont get up
+     in case of cluster	if one node's remaining RAM is lesser than request then it will schedule to another node that have this number available
+       if none of the worker node have this number then pod wont run and error will occur
+   - request does not mean actually how much ram/cpu is used by pod but just a rough idea that can help scheduler to pick correct node, we could be giving it more and space might be getting wasted	   
+     - very useful in production clsuter as if we give it it helps scheudler to put the pod in correct node 
+	    if not scheduler might schedule in a nnode with lesser ram and whihc might cause service to be slower than expected
+
+b. resource limits:
+   - can be applicable for cpu utilization and ram memory
+   - it works with actual cpu and memory of the pod, it ensures any time the cpu quota for this specific pod is never crossed and same with memory
+   - it saves the overall health of cluster, one bad pod having memory leaks without a limit can make all cluster down
+   - in case actual memory goes greater than limit of resource container is made down and pod restarts it(pod is not killed only container is restarted) 
+      but for cpu limit is ensured and actual cpu of pod can never cross mentioned in yaml file(pod is not killed nor container, linux features are used to gurantee cpu limit is not crossed)
+		
+- how to calculate the resource request for cpu and memory:
+  maybe if we are devloper we know the tech stack behind that pod, so maybe we can judge and predict but wont be accurate
+  if image is created by some one else maybe we can check their documentation but this si also tough and not accurate and too much work
+  better approach is to use some kind of metric profiler: kubernetes provides metric profiler pods and using command kubectl top we an do it
+we need to enabl this emtric profiler pod and then can use kubectl top command
+we can do load testing but giving lot of users to cluter and then can use metric server pod to generate metrics
+then using kubectl top pod command we can see the actual cpu and memory utilization and accordingly we can keep in the yaml file
+  
+- minikube addons list: minikube have addons like metric server, dashboard etc
+  these are disabled but we can enable them and seperate pods ge running doing these task and svc gets creaed to expose them for work by other pod or api  
+  
+- stateful services like mongo db/db/redis can not be replicated just ny using k8s replcation, they need data sharding and hence would require their own seprate cluster setup
+- stateless service can be replciated but we need to ensure there are no side effects  
+
+- we need to deploy a k8s object with kind horizontalpodautosacler
+  remember we defined the quota of cpu or memory utilization with reqest resource
+  so rule is like if actual cpu utulization or memory utilization > 50 percent of request resource amount then add one more pod until max quantity is reached
+  if load reduces and cpu utilization/memory utilization reduces the pod will be closed down
+  remember scale down(other than scale up) is not instantaneous as there might be bad load maybe load came down only for few seconds and suddenly more laod came
+	we do not want scaled down up again and again so it waits for some time and if cpu percent is less for 5 min or so than only it scales down
+
+- in case we update replicase in yaml(increase by one or 2 etc) or auto scale up happens using hpa the new pods are available for service as soon as they are running
+   but still in case of http server containers the app might not be up and loadbalancer uses service to call all these pods one by one in round robin algo
+   so there are cahnces that request will get error so better to use either minReadseconds or better use readinessprobe   
+   	
+- liveness probe is like health check running for lifetime of a pod, it keeps on checking if pod containers are running healthily
+    in case http request fails for a threshold amount then it stops the container and restarts it(same like memory limit do not kill pod but restart the container
+)	
+	
+- we can setup liveness and readiness probe using http calls ,  tcp calls or file query (in case of non server containers)	
+- not giving request i resource can be bad, eg there is only 100 mb allocation left but dev have not provided request resource for memory
+  scheduler do not understand this and deploy the pod to that specific node which actually uses more than what is remaining in the node
+  this can led to node beeing overloaded and can lead to downfall of node
+  to handle this scenarios k8s uses qos or quality of service where it tags the pods with provided resources
+  QOS guranteed: pod with resource and limit both set(both value of request and limit should be equal): scheduler works very well with this kind of pod
+  QOS burstable: pod with resource request set but no limit(even in case both are set but values are not equal): scheduler have clue as to where to scheudle but actually it might eat more than what it said
+  QOS BestEffort: pod with no resource set for request or limit
+	this kind of pod is dangerous as scheduler schedules them to random node and maybe that node is incapable of handling those pods
+	which again forces scheduler to evict the pod and reschedule to another node which again might be or might not be able to handle that pod and process continues
+-  we an see qos class using command kubetl describe pod  
+
+- in short QOS class helps k8s to reschedule the pod in case one node is overloaded , initially pod is evicted and then it is rescheduled
+- in case any node memory is overloaded then first pods tagged with best effort qos class will be evicted and will be possibly rescheduled to another node
+  still if load is not free then it evicts pods tagged with burstable and then if still need for guranteed
+  remember these pods evicted will eventually we rescheduled to another node and hence wont be down forever
+
+
+- configmap are like centralized config where we can set env config(which migh change in future) at one place inside k8s and can be used by multipls containers in multiple pods
+  code becomes flexible o any cahnge in config can be done from external config
+  also we can modify this config at one place and can be reflectable in all pods/containers in one go
+  however we need to drop the pods and recreate them, either using deployment strategy or manual work or use spring cloud config for auto refresh of env config values
+- 2 ways to consume configmap in the pod : use env section and add all the key values from specifi c config map
+   or use envFrom where just specify the configMap name and all its  env variable will be pushed to the pod in one go  
+   
+- ways to inject data from configMap to the container inside pod 
+a. env : use configMap name and provide env name to be injected from configMap
+b. envFrom: just tell the configMap name and all env variable are injected
+c. volumes: mount a file inside the container and the data for that is pushed from configMap
+   same as above steps creation of configMap is same as other steps bt in the container we will use volumes, volumesMount and tell the configMap name
+   all the key value pairs of the configMap will be mounted inside the container at a specific directory mentioned in volumeMount   
+   one advantage of configMap with volumes is that on change in configMap we can apply and without restarting the pods the changes reflects on pod side as file mounted will get updated
+   
+- secrets are same as configMap, can manage external config for multiple pods however they are meant to store sensitive info
+   however by default the data stored in secret is not encrypted , just encoded by base64 codec so it is still open to see and decode and get secret info
+   but as an admin we can create RBAC role for configMap to be visible to all dev but since secret is different object in k8s we can restrict commands on it
+  like kubectl get secrete just give basic info but not actual data but -o yaml in kubectl describe secret command can be restricted so that sensitive base 64 data can nto be seen which is easy to decode
+- we can keep kind: Secret and put base64 encoded data in data section or plain text i stringData section while creating k8s yaml file for secret  
+
+- using spring cloud config project we can auto refresh the new configmap and secret values withour stopping and restarting the pods
+
+- Typically so far we have learned that there are 2 ways to expose one service to the external world
+a. nodeport: in case browser is able to access the node like running minikube in local so minikube ip is accesible then using nodeport (30xxx) we can call the service
+		useful for local devlopment or administration work but not good enough for production standard
+b. loadbalancer: it actually provision a very stable, highly available and highly resillient hardware that is exposed to external world with same ip
+   loadbalancer can redirect to our service at specific port , however this works for only one service
+   if we want n microservice to be exposed it will require to create n loadbalancers and this can be extremely costly
+   also the ip of all these loadbalancers will be different so client must know all the ips
+   
+ingress is another k8s object that can help in such scnenarios
+ingress is nothing but a reverse proxy engine like nginx and we can customize ingress to use oter implementaions of reverse proxy  
+   can plug in and plug out to use ha proxy or nginx as implementation of reverse proxy
+
+- flow in ingress implementation
+     browser calls ingress url -> load balancer auto scheduled for ingress controller -> ingress server (nginx or ha proxy)
+			acts as reverse proxy have routing rules -> individual service
+			
+- os with this ingress implementation we will have 2 load balancers : one for kubectl operations and one that redirects to ingress nginx server which then do reverse proxy to individual services
+-  on AWS we have appliaction load balancer that can also redirect to individual services based on routing rules but that wont be cloud agnostic
+ other cloud providers might not have this implementation and hence better to use ingress
+ browser calls ip of actual load balancer (other than kubectl load balancer)  -> redirect to ingress reverse proxy(nginx or ha proxy)
+   -> based on rules kept in ingress it redirects to individual service
+   
+   
+- if we are using kind:pod and doing any job work like using python printing message , sleeping then done
+   the pod keeps on restarting after one job is done and then again start. as restartpolicy by default is always
+   meaning if error occurs in pod or job is done it restarts it , good for things like web servers like nginx, tomcat, spring boot app etc 
+  but for cases when we want pod to do the job and shut down is not there by default
+ one solution is to make restartPolicy: Never : -> once job is completed never restart it meaning after doing the job pod will die thats what we wanted  
+ but this solutions is dangerous because even in case job in the pod was not sucesful still it do not restart
+ scenarios : pod with restartPolicy as Never (default): after doing the job pod restart and keep on doing the task but in job we do not want that
+		     pod with restartPolicy : Never -> after job is done by pod never restart it, but issue is in case job was not done sucesfully still pod dies and that task never runs every
+			   to fix thi issue kind: Job comes into picture
+- Job means a Pod that always runs only once , in case of failure it keeps restarting and in case of succes it dies
+ so we can say a job kind of create a pod with restartpolicy as never (even in case of pod success or failure no need to restart)
+   plus only in case of error it restart the task until a backofflimit
+  so in case pod job is success it let it die just like restartPolicy as never but in case task ended in error it restart the pod and do this until a limit
+- remember like deployment , replicaset even a job will create 2 objects: a job : kubectl get job and pod which actually do the job  
+- cronJob is also a special kind of job which runs on scheduled basis, cron format defines the schedule logic
+
+
+- - DaemonSet is an advanced replicaset : however we can not define the instance count here
+   it ensures to create one pod in each of the nodes, if the node count is increased or decreased the pod count also changes accordingly to have one pod in each node always running
+
+- - StatefulSets are k8s workload objects that can manage stateful applications
+  takeways: statefulsets are not used for persistence , name might confuse as if the state is persisted for these pods but that is not the case here   
+  
+typically pods are like cattles, they die and new pod instances are scheduled and thats normal, normally pod using kind: Deployment have rando names, some alphanumeric string s appended 
+it is because they are like cattles: cattles do not have unique name and special behaviors theese die and new comes up
+so for this service is mandatory for external world to call pods, we can not call the pods directly but we call service which are like pets
+
+these service do loadbalancing using round robin algo by default, this can be changed however but in microservice which are stateless its fine and good
+
+- only sometimes we want pods to be like pets : meaning have predicatable names, so that client can tell which specific pod it want to call
+ it will actuall call service only aka headless service but what it do is since the name of the pods are predictable eg: my-pod-0, my-pod-1 etc
+ it gives freedom to client that it can tell headless service which specific pod it want to call
+ earlier this k8s object was known as PetSet and now called StatefulSets
+
+Features:
+a. name of pods are predictable like my-pod-0 , my-pod-1 etc : this helps client to specially call any one instance of pod using headless service
+b. pods will get up and running one by one: my-pod-0 first, my-pod-1 second and so on 
+c. basically treat pods like pets and not cattle
+d. headless service need not to do loadbalancing as client itself is telling which specific pod it want to use
+e. these are not persisted but mostly used in pods which uses persistence
+   ppl think since name is statefulset if pod goes down its state will be persisted but that is not true
+   
+- good use case of using statefulSets are data bases and only when we want to replcate the pods
+  with traditional deployment/services approach every request will go to random pod instance eg: write of user kbhatt23 went to pod1 and then read goes to pod2 wherer data does nto exist
+ so to replicate a stateful pod we need to deploy it using statefulset
+clie will call the headlessservice by providing the id of the pod and service wont do load balancing but directly redirect to that specific pod 
+
+- in older software engineering in software dev lifecycle there was a specific phase for integration
+  meaning all modules were developed by teams seperately and untill all are done then only they used to work on integration
+  making it very slowand boring and overall dev time was huge
+  so here comes continuous integration where we develope modules in patches based on functionality and integrate within dev phase quite freequently
+- continuous integration is more like a software development best practise consiting of:
+ a. all code to be commited in versined based repos
+ b. auto build based on timing or the moment any code is committed by dev
+ c. auto test during build phase itself etc
+- continuous integration was supposed to make any software buildable always , but continuous deployment is one step further making the build completely deployed automatically
+ same has to be applied in kubernetes cluster , we can use tools like jenkins (earlier known as hudson built by sun microsystem)
+this make sure dev once commit the code auto build, test and deployment happen , dev need not to worry
+specially in microservice when we have so many service to build and deploy lets automate it
+also the more we deploy more chance is to test bugs
+ 
+ 
+- jenkins pipeline project can be used in good way , no need to configure on dashboard ,  but declaratively using code and yaml files in git code repo itself 
+- we can create basic project in jenkins where we can provide git url of project and then provide build command, clean command and then post build command to send emails
+	however this si note repetetive nor declarative, we need to do all things manually and for newer project again need to do manual job creation
+		if more instances of jenkins are to be created again job has to be created manually and can not create the job automatically using some config file
+- we can use jenkins multi project pipeline to keep jenkinfile config within the project 
+; automatic job creation and repetetive
+  it can have stages and in each stage we do tasks : stage of preparation : cleanWorkspace then do fresh git checkout
+    in build stage: mvn clean package then docker build -t .
+	in deploy stage: kubectl apply -f .
+	so steps of doing fresh checkout, then jar creation then creating docker iamge then applying containers on kubernetes all done within jenkins
+- we can create git organization to collate all microservice git project into single place
+		using this in one step we can create multiple build and deployment pipeline job in one shot automatically
+        however these feature does not mean if dev commits code build and deployment happens automatically, that would still need more work on git hook config		
+
+- a package manager is a tool that can help us install, configure and run wide range of softwares using simple commands : yum,apt,brew,chocalatey etc
+- helm is created outside of k8s but widely used in project -> it is a package manager for kubernetes applications/softwares
+  meaning using helm we can install and run k8s application with easy command and share those softwares across		
+  
+- without package manager: find the software website, download the executable file, instlal it, then rconfigure it then run it
+  all these steps have different commands and operation and hence tough
+  using package manager using a single command we can download,configure run and also share any software in single command or easy command
+  for sharing of packages we need to have repo, using this repo we can download softwares as well as share the software(all preconfigured)  
+  
+  -- eg if we want to run mysql inside k8s cluster without package manager
+   steps: go to dockerhub repo and search for official mysql docker image
+          create k8s manifest yaml files for workloads(might be statfulset for multiple replicas or deployment for single replica) and services and other things like pvc,pv,volumes etc
+		  then manually apply all these yaml files in proper sequence then mysql will be running in pods and shared across services for other services to be used
+
+- but the above steps of running mysql inside k8s cluster is very lament and labourous
+  huge chance of mistake is possible and is time consuming to be make config perfect
+- helm provides repo where preconfigured k8s manifest yaml files of docker image exist and using simple command we can run them all in one command
+    this is somewhat like a docker compose to docker image
+   in one step we can manage multiple docker images, similary in one step we can manage multiple pods, services in one go	
+- helm v2 used to work with tiller, tiller used to be a pod in kube-system namespace, but in newer version of helm > 3
+  it do not need tiller to run as pod and it still works   
+- unlike docker hub we do not have a single repository in helm, where all packages exist so we must setup those repositories first
+  and then only packages of those installed repos will be visible to us  
+- use site https://artifacthub.io/ to find kubernetes helm repository and pacakges
+   in single place we can find packages from most of the different repositories  
+- helm install command will automatically create the pods, services or stateful set , pvc etc based on the config yaml provided by chart/package
+  on uninstall of package all the pods/service etc objects i k8s will be auto deleted : woow 
+  
+- good use case is installing ELK stack or monitoring stack(prometheus graphana)
+    here we have multiple pods service to run and making them correct using k8s yaml is tough and time consuming, chance of making mistake is huge
+	also in one go using helm oob charts from official community we can run it in one simple command
+- we can even extract k8s yaml files from helm chart: eg in elk stack and promethues stack we can take yaml from helm chart from repo
+  using this we can apply using kubectl without even using helm	
+  
+- we can use helm upgrade command to update any already installed package  
+   also we can view the config aka values of helm pacakge, we can update the yaml for values and then update config in the file and upgrade the helm pacakge config
+   it will redeploy the pods and services if needed   
+   
+- beforing understanding how to create our own helm chart to package and share our k8s services first we should know abt snowflake clusters   
+  a snowflake server means a server where anyone on need basis install, configure and run the software
+  today some one installed mysql and it works after hard work and tomorrow tomcat and other things
+  but this way on adhoc installation and setup makes it tough to replcate the server
+  we need to track everything installed/setup like software or security patch or config etc and it is tough to follow 
+  takes huge time in manual setup and replication plus huge chance of mistake
+  so we should use some kind of automatic deployment tool like ansible,chef puppet etc
+  need to create script whcih have config , installation and running steps for all the softwares and hence it can be reused to create new server in one step
+  any change in server setup will ensure a change in the script file which can be versioned in the code repo and will be highly maintainable and replcable
+
+- we can clearly see that using helm install it makes it snowflake server as it will make it labourous to track and run those command again manually in the new replication server
+  replicating again means listing the repo, charts and then running one by one in the replication server 
+so we need some kind of script which can help in one step just like chef/ansible/puppet etc 
+specially for production using hel install just like adhoc basis is very dangerous
+
+- this can be solved by using command helm pull instead of using helm install
+  that can download the yaml file which we can commit to our git repo, make changes in them and again commit to git repo for sorucing and tracking
+  same files can be used in any of the other replication server with easy steps
+  remember helm pull only downloads the yamls and never run any k8s object in cluster
+  
+ways to get away from snowflake
+- do not directly use hel install, instead use helm pull first and then commit that as part of code in git and use those to do helm install in one shot
+  plus can do helm upgrade using custom yaml file
+- generate k8s yaml file from the chart itself and need not to use hel install command at all
+
+helm pull prometheus-community/kube-prometheus-stack --untar=true : this only pulls the chart source code  : we an commit this to git for maintainability
+then do helm install monitoring-stack folderName
+share this foilder across git if needed  
+for any upgrade we need to create custom values file specifically with overriding properties only then use hel upgrade --values=yaml file location
+
+- use helm tempalte command to generate k8s.yaml file either from local helm chart soruce code or from repo online
+  this k8s.yaml will be modified for any further enhancement and can be kept in git
+
+
+- why we need to create our own helm chart:
+a. we need to share our k8s softwares to whole world maybe huge audience
+b. in case we have k8s objects but need not share to other ppl but k8s yaml files are static we can use helm chart to make these k8s yaml dynamic
+
+- helm create command create basic char with specific folders
+  if we install using this whole source folder helm will try to run all the pods and service defined inside template folder
+  template folder will contain all the k8s.yml that will be picked up by text formatter
+   it can do dynamic value insertion in these tempalte yamls and then it creates pods and services
+    {{.Values.property}}  can update the values dynamically from values.yaml or --set property and then run the pods/services/k8s objects
+
+- for demo we can use helm tempalte command to see how yamls are generated
+
+- namedtempalte aka subtempalte can keep some section of yaml in single place
+  this part of the yaml can be kept in file inside template folder
+  so to ensure this do not get applied by k8s we need to name starts with char '_' and format as .tml for tempalte
+- this seperate file can have go action with anme and the whole yaml section and end
+  to remove any spacev to occur in go command use {{- command}} otherwise one extra empty line will come in final yaml file -> bad for readability
+- we can use go command {{include tempalteName | intend 6}} -> intend is needed 
+  because same yaml section might be used in multiple places needing different yaml indentation/spaces 
+  so in tmpl file we keep all yaml starts from 0 spaces from left and user side can use indent command in go to use as per their need
+  
+  

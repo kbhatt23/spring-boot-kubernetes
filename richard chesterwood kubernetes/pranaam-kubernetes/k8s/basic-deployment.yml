@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: pranaam-kubernetes
+  name: pranaam-kubernetes
+  namespace: default
+spec:
+  #progressDeadlineSeconds: 600
+  replicas: 1
+  # older pods are delete after giving 40 seconds to new pods to be actually running the spring service
+  #minReadySeconds: 30
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: pranaam-kubernetes
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: pranaam-kubernetes
+    spec:
+      containers:
+      - image: kbhatt23/pranaam-kubernetes:0.0.1
+        imagePullPolicy: IfNotPresent
+        name: pranaam-kubernetes
+        #reqeust is just a guidance actual resource might be more or less than this
+        resources:
+          requests:
+            memory: 200Mi
+            cpu: 50m
+          limits:
+            memory: 400Mi
+            cpu: 150m  
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      

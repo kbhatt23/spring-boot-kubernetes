@@ -1,0 +1,6 @@
+git for docker samples:
+https://github.com/in28minutes/docker-crash-course
+
+git for kubernetes samples:
+https://github.com/in28minutes/kubernetes-crash-course
+

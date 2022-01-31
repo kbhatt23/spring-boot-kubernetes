@@ -1,0 +1,73 @@
+2021-02-12 15:10:57,008 INFO org.springframework.boot.StartupInfoLogger [main] Starting PranaamDockerApplication using Java 1.8.0_271 on LAPTOP-UF16DMP5 with PID 13844 (C:\Kanishk\learning\spring-kubernetes\kubernetes-revision\spring-boot-kubernetes\docker-practise\pranaam-docker\target\classes started by kanis in C:\Kanishk\learning\spring-kubernetes\kubernetes-revision\spring-boot-kubernetes\docker-practise\pranaam-docker)
+2021-02-12 15:10:57,011 INFO org.springframework.boot.SpringApplication [main] No active profile set, falling back to default profiles: default
+2021-02-12 15:10:57,828 INFO org.springframework.boot.web.embedded.tomcat.TomcatWebServer [main] Tomcat initialized with port(s): 8081 (http)
+2021-02-12 15:10:57,838 INFO org.apache.juli.logging.DirectJDKLog [main] Initializing ProtocolHandler ["http-nio-8081"]
+2021-02-12 15:10:57,839 INFO org.apache.juli.logging.DirectJDKLog [main] Starting service [Tomcat]
+2021-02-12 15:10:57,840 INFO org.apache.juli.logging.DirectJDKLog [main] Starting Servlet engine: [Apache Tomcat/9.0.41]
+2021-02-12 15:10:57,909 INFO org.apache.juli.logging.DirectJDKLog [main] Initializing Spring embedded WebApplicationContext
+2021-02-12 15:10:57,909 INFO org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext [main] Root WebApplicationContext: initialization completed in 842 ms
+2021-02-12 15:10:58,061 INFO org.springframework.scheduling.concurrent.ExecutorConfigurationSupport [main] Initializing ExecutorService 'applicationTaskExecutor'
+2021-02-12 15:10:58,233 INFO org.apache.juli.logging.DirectJDKLog [main] Starting ProtocolHandler ["http-nio-8081"]
+2021-02-12 15:10:58,247 WARN org.springframework.context.support.AbstractApplicationContext [main] Exception encountered during context initialization - cancelling refresh attempt: org.springframework.context.ApplicationContextException: Failed to start bean 'webServerStartStop'; nested exception is org.springframework.boot.web.server.PortInUseException: Port 8081 is already in use
+2021-02-12 15:10:58,249 INFO org.springframework.scheduling.concurrent.ExecutorConfigurationSupport [main] Shutting down ExecutorService 'applicationTaskExecutor'
+2021-02-12 15:10:58,251 INFO org.apache.juli.logging.DirectJDKLog [main] Pausing ProtocolHandler ["http-nio-8081"]
+2021-02-12 15:10:58,252 INFO org.apache.juli.logging.DirectJDKLog [main] Stopping service [Tomcat]
+2021-02-12 15:10:58,257 INFO org.apache.juli.logging.DirectJDKLog [main] Stopping ProtocolHandler ["http-nio-8081"]
+2021-02-12 15:10:58,258 INFO org.apache.juli.logging.DirectJDKLog [main] Destroying ProtocolHandler ["http-nio-8081"]
+2021-02-12 15:10:58,263 INFO org.springframework.boot.autoconfigure.logging.ConditionEvaluationReportLoggingListener [main] 
+
+Error starting ApplicationContext. To display the conditions report re-run your application with 'debug' enabled.
+2021-02-12 15:10:58,281 ERROR org.springframework.boot.diagnostics.LoggingFailureAnalysisReporter [main] 
+
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+Web server failed to start. Port 8081 was already in use.
+
+Action:
+
+Identify and stop the process that's listening on port 8081 or configure this application to listen on another port.
+
+2021-02-12 15:23:59,109 INFO org.springframework.boot.StartupInfoLogger [main] Starting PranaamDockerApplicationTests using Java 1.8.0_271 on LAPTOP-UF16DMP5 with PID 10684 (started by kanis in C:\Kanishk\learning\spring-kubernetes\kubernetes-revision\spring-boot-kubernetes\docker-practise\pranaam-docker)
+2021-02-12 15:23:59,137 INFO org.springframework.boot.SpringApplication [main] No active profile set, falling back to default profiles: default
+2021-02-12 15:24:00,186 INFO org.springframework.scheduling.concurrent.ExecutorConfigurationSupport [main] Initializing ExecutorService 'applicationTaskExecutor'
+2021-02-12 15:24:00,492 INFO org.springframework.boot.StartupInfoLogger [main] Started PranaamDockerApplicationTests in 1.719 seconds (JVM running for 2.642)
+2021-02-12 15:24:00,768 INFO org.springframework.scheduling.concurrent.ExecutorConfigurationSupport [SpringContextShutdownHook] Shutting down ExecutorService 'applicationTaskExecutor'
+2021-02-12 15:26:42,234 INFO org.springframework.boot.StartupInfoLogger [main] Starting PranaamDockerApplicationTests using Java 1.8.0_271 on LAPTOP-UF16DMP5 with PID 20308 (started by kanis in C:\Kanishk\learning\spring-kubernetes\kubernetes-revision\spring-boot-kubernetes\docker-practise\pranaam-docker)
+2021-02-12 15:26:42,264 INFO org.springframework.boot.SpringApplication [main] No active profile set, falling back to default profiles: default
+2021-02-12 15:26:43,354 INFO org.springframework.scheduling.concurrent.ExecutorConfigurationSupport [main] Initializing ExecutorService 'applicationTaskExecutor'
+2021-02-12 15:26:43,693 INFO org.springframework.boot.StartupInfoLogger [main] Started PranaamDockerApplicationTests in 1.753 seconds (JVM running for 2.66)
+2021-02-12 15:26:43,990 INFO org.springframework.scheduling.concurrent.ExecutorConfigurationSupport [SpringContextShutdownHook] Shutting down ExecutorService 'applicationTaskExecutor'
+2021-02-12 16:13:54,888 INFO org.springframework.boot.StartupInfoLogger [main] Starting PranaamDockerApplicationTests using Java 1.8.0_271 on LAPTOP-UF16DMP5 with PID 11416 (started by kanis in C:\Kanishk\learning\spring-kubernetes\kubernetes-revision\spring-boot-kubernetes\docker-practise\pranaam-docker)
+2021-02-12 16:13:54,917 INFO org.springframework.boot.SpringApplication [main] No active profile set, falling back to default profiles: default
+2021-02-12 16:13:55,949 INFO org.springframework.scheduling.concurrent.ExecutorConfigurationSupport [main] Initializing ExecutorService 'applicationTaskExecutor'
+2021-02-12 16:13:56,236 INFO org.springframework.boot.StartupInfoLogger [main] Started PranaamDockerApplicationTests in 1.651 seconds (JVM running for 2.549)
+2021-02-12 16:13:56,472 INFO org.springframework.scheduling.concurrent.ExecutorConfigurationSupport [SpringContextShutdownHook] Shutting down ExecutorService 'applicationTaskExecutor'
+2021-02-12 16:21:06,535 INFO org.springframework.boot.StartupInfoLogger [main] Starting PranaamDockerApplicationTests using Java 1.8.0_271 on LAPTOP-UF16DMP5 with PID 12012 (started by kanis in C:\Kanishk\learning\spring-kubernetes\kubernetes-revision\spring-boot-kubernetes\docker-practise\pranaam-docker)
+2021-02-12 16:21:06,569 INFO org.springframework.boot.SpringApplication [main] No active profile set, falling back to default profiles: default
+2021-02-12 16:21:07,678 INFO org.springframework.scheduling.concurrent.ExecutorConfigurationSupport [main] Initializing ExecutorService 'applicationTaskExecutor'
+2021-02-12 16:21:07,959 INFO org.springframework.boot.StartupInfoLogger [main] Started PranaamDockerApplicationTests in 1.75 seconds (JVM running for 2.653)
+2021-02-12 16:21:08,217 INFO org.springframework.scheduling.concurrent.ExecutorConfigurationSupport [SpringContextShutdownHook] Shutting down ExecutorService 'applicationTaskExecutor'
+2021-02-12 16:21:55,658 INFO org.springframework.boot.StartupInfoLogger [main] Starting PranaamDockerApplicationTests using Java 1.8.0_271 on LAPTOP-UF16DMP5 with PID 11028 (started by kanis in C:\Kanishk\learning\spring-kubernetes\kubernetes-revision\spring-boot-kubernetes\docker-practise\pranaam-docker)
+2021-02-12 16:21:55,688 INFO org.springframework.boot.SpringApplication [main] No active profile set, falling back to default profiles: default
+2021-02-12 16:21:56,696 INFO org.springframework.scheduling.concurrent.ExecutorConfigurationSupport [main] Initializing ExecutorService 'applicationTaskExecutor'
+2021-02-12 16:21:56,975 INFO org.springframework.boot.StartupInfoLogger [main] Started PranaamDockerApplicationTests in 1.604 seconds (JVM running for 2.47)
+2021-02-12 16:21:57,196 INFO org.springframework.scheduling.concurrent.ExecutorConfigurationSupport [SpringContextShutdownHook] Shutting down ExecutorService 'applicationTaskExecutor'
+2021-02-12 16:50:15,555 INFO org.springframework.boot.StartupInfoLogger [main] Starting PranaamDockerApplicationTests using Java 1.8.0_271 on LAPTOP-UF16DMP5 with PID 18620 (started by kanis in C:\Kanishk\learning\spring-kubernetes\kubernetes-revision\spring-boot-kubernetes\docker-practise\pranaam-docker)
+2021-02-12 16:50:15,560 INFO org.springframework.boot.SpringApplication [main] No active profile set, falling back to default profiles: default
+2021-02-12 16:50:16,793 INFO org.springframework.scheduling.concurrent.ExecutorConfigurationSupport [main] Initializing ExecutorService 'applicationTaskExecutor'
+2021-02-12 16:50:17,143 INFO org.springframework.boot.StartupInfoLogger [main] Started PranaamDockerApplicationTests in 2.01 seconds (JVM running for 3.104)
+2021-02-12 16:50:17,509 INFO org.springframework.scheduling.concurrent.ExecutorConfigurationSupport [SpringContextShutdownHook] Shutting down ExecutorService 'applicationTaskExecutor'
+2021-02-12 16:53:17,267 INFO org.springframework.boot.StartupInfoLogger [main] Starting PranaamDockerApplicationTests using Java 1.8.0_271 on LAPTOP-UF16DMP5 with PID 13380 (started by kanis in C:\Kanishk\learning\spring-kubernetes\kubernetes-revision\spring-boot-kubernetes\docker-practise\pranaam-docker)
+2021-02-12 16:53:17,298 INFO org.springframework.boot.SpringApplication [main] No active profile set, falling back to default profiles: default
+2021-02-12 16:53:18,304 INFO org.springframework.scheduling.concurrent.ExecutorConfigurationSupport [main] Initializing ExecutorService 'applicationTaskExecutor'
+2021-02-12 16:53:18,566 INFO org.springframework.boot.StartupInfoLogger [main] Started PranaamDockerApplicationTests in 1.583 seconds (JVM running for 2.454)
+2021-02-12 16:53:18,817 INFO org.springframework.scheduling.concurrent.ExecutorConfigurationSupport [SpringContextShutdownHook] Shutting down ExecutorService 'applicationTaskExecutor'
+2021-02-12 16:55:23,431 INFO org.springframework.boot.StartupInfoLogger [main] Starting PranaamDockerApplicationTests using Java 1.8.0_271 on LAPTOP-UF16DMP5 with PID 9148 (started by kanis in C:\Kanishk\learning\spring-kubernetes\kubernetes-revision\spring-boot-kubernetes\docker-practise\pranaam-docker)
+2021-02-12 16:55:23,462 INFO org.springframework.boot.SpringApplication [main] No active profile set, falling back to default profiles: default
+2021-02-12 16:55:24,468 INFO org.springframework.scheduling.concurrent.ExecutorConfigurationSupport [main] Initializing ExecutorService 'applicationTaskExecutor'
+2021-02-12 16:55:24,757 INFO org.springframework.boot.StartupInfoLogger [main] Started PranaamDockerApplicationTests in 1.622 seconds (JVM running for 2.475)
+2021-02-12 16:55:25,027 INFO org.springframework.scheduling.concurrent.ExecutorConfigurationSupport [SpringContextShutdownHook] Shutting down ExecutorService 'applicationTaskExecutor'

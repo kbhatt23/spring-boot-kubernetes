@@ -1,0 +1,52 @@
+version: "3"
+services:
+ mysql:
+    image: "mysql:5.7"
+    container_name: "mysql"
+    environment:
+      MYSQL_ROOT_PASSWORD: jaishreeram
+      MYSQL_USER: pranaam-kubernetes-user
+      MYSQL_PASSWORD: jaishreeram
+      MYSQL_DATABASE: pranaam-kubernetes-db
+    ports:
+      - "3306:3306"
+    volumes:
+      - 'mysql_data:/var/lib/mysql'
+    networks:
+      - db-network
+
+ pranaam-kubernetes-mysql:
+    image: "kbhatt23/pranaam-kubernetes-mysql:0.0.1"
+    container_name: "pranaam-kubernetes-mysql"
+    depends_on:
+      - mysql
+    environment:
+      RDS_HOSTNAME: mysql
+      RDS_USERNAME: pranaam-kubernetes-user
+      RDS_PASSWORD: jaishreeram
+      RDS_DB_NAME: pranaam-kubernetes-db
+    ports:
+      - "9090:9090"
+    networks:
+      - db-network
+
+ pranaam-kubernetes-mysql-client:
+    image: "kbhatt23/pranaam-kubernetes-mysql-client:0.0.1"
+    container_name: "pranaam-kubernetes-mysql-client"
+    depends_on:
+      - pranaam-kubernetes-mysql
+    environment:
+      SERVICE_HOST: pranaam-kubernetes-mysql
+      SERVICE_PORT: 9090
+    ports:
+      - "9091:9091"
+    networks:
+      - db-network      
+   
+networks:
+  db-network:
+
+volumes:
+  mysql_data:
+  
+  

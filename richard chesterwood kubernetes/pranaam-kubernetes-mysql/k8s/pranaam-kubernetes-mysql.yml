@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: pranaam-kubernetes-mysql
+  name: pranaam-kubernetes-mysql
+  namespace: default
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  # older pods are delete after giving 40 seconds to new pods to be actually running the spring service
+  minReadySeconds: 30
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: pranaam-kubernetes-mysql
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: pranaam-kubernetes-mysql
+    spec:
+      containers:
+      - image: kbhatt23/pranaam-kubernetes-mysql:0.0.1
+        env:
+        - name: RDS_HOSTNAME
+          value: mysql
+        - name: RDS_PASSWORD
+          value: jaishreeram
+        - name: RDS_USERNAME
+          value: pranaam-kubernetes-user
+        - name: RDS_DB_NAME
+          value: pranaam-kubernetes-db    
+        imagePullPolicy: IfNotPresent
+        name: pranaam-kubernetes-mysql
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: pranaam-kubernetes-mysql
+  name: pranaam-kubernetes-mysql
+  namespace: default
+spec:
+  externalTrafficPolicy: Cluster
+  ports:
+  - nodePort: 31330
+    port: 9090
+    protocol: TCP
+    targetPort: 9090
+  selector:
+  #contianer selector name
+    app: pranaam-kubernetes-mysql
+  sessionAffinity: None
+  type: NodePort      

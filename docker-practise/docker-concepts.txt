@@ -1,0 +1,10 @@
+git for docker samples:
+https://github.com/in28minutes/docker-crash-course
+
+hub.docker.com is docker image registry
+	- it can contatin multiple container repositories based on user
+
+- a docker command gets executed in docker client 
+	the request goes to docker daemon whihc handles containers, images , pulling images, pushing images to docker hub etc
+
+- docker image history can be used to inspect the dockerfile steps

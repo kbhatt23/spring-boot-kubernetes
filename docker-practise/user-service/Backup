@@ -1,0 +1,46 @@
+
+
+
+
+##### Stage 1 - Lets build the "deployable package"
+#this way even without maven installed we can do independednt complete build as well
+FROM maven:3.6.1-jdk-8-alpine AS userservicebuild
+LABEL "MAINTAINER"="Kanishk Bhatt"
+LABEL "EMAIL"="kanishkeminem@gmail.com"
+
+WORKDIR /userservice
+
+### Step 1 - Copy pom.xml and download project dependencies
+
+# Dividing copy into two steps to ensure that we download dependencies 
+# only when pom.xml changes
+COPY pom.xml .
+# dependency:go-offline - Goal that resolves all project dependencies, 
+# including plugins and reports and their dependencies. -B -> Batch mode
+RUN mvn dependency:go-offline -B
+
+### Step 2 - Copy source and build "deployable package"
+COPY src src
+RUN mvn clean package -DskipTests
+
+# we are not unpacking the jar for practise
+# Unzip
+#RUN mkdir -p target/dependency && (cd target/dependency; jar -xf ../*.jar)
+
+##### Stage 2 - Let's build a minimal image with the "deployable package"
+FROM openjdk:8-jdk-alpine
+COPY --from=userservicebuild /usr/src/app/target/flighttracker-1.0.0-SNAPSHOT.jar /usr/app/flighttracker-1.0.0-SNAPSHOT.jar 
+EXPOSE 9000
+
+LABEL "MAINTAINER"="Kanishk Bhatt"
+LABEL "EMAIL"="kanishkeminem@gmail.com"
+
+COPY --from=user-service-build  /user-service/target/user-service-1.0.0.jar ./rest-api.jar
+
+
+FROM openjdk:9
+
+EXPOSE 8080
+ENTRYPOINT ["java","-jar","/usr/app/flighttracker-1.0.0-SNAPSHOT.jar"]
+
+ENTRYPOINT [ "java" , "-Dspring.profiles.active=docker","-jar", "rest-api.jar"]

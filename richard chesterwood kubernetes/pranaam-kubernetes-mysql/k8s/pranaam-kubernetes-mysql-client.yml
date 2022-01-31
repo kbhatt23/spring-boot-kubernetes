@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: pranaam-kubernetes-mysql-client
+  name: pranaam-kubernetes-mysql-client
+  namespace: default
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  # older pods are delete after giving 40 seconds to new pods to be actually running the spring service
+  minReadySeconds: 30
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: pranaam-kubernetes-mysql-client
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: pranaam-kubernetes-mysql-client
+    spec:
+      containers:
+      - image: kbhatt23/pranaam-kubernetes-mysql-client:0.0.1
+        env:
+        - name: SERVICE_HOST
+          value: "pranaam-kubernetes-mysql"
+        - name: SERVICE_PORT
+          value: "9090"
+        imagePullPolicy: IfNotPresent
+        name: pranaam-kubernetes-mysql-client
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: pranaam-kubernetes-mysql-client
+  name: pranaam-kubernetes-mysql-client
+  namespace: default
+spec:
+  externalTrafficPolicy: Cluster
+  ports:
+  - nodePort: 31331
+    port: 9091
+    protocol: TCP
+    targetPort: 9091
+  selector:
+  #contianer selector name
+    app: pranaam-kubernetes-mysql-client
+  sessionAffinity: None
+  #type: NodePort
+  type: LoadBalancer      

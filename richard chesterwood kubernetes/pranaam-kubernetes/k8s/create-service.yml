@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: pranaam-kubernetes
+  name: pranaam-kubernetes
+  namespace: default
+spec:
+  externalTrafficPolicy: Cluster
+  ports:
+  - port: 8081
+    protocol: TCP
+    targetPort: 8081
+  selector:
+  #contianer selector name : the lable inside metadata of pod/container will point to this
+    app: pranaam-kubernetes
+  sessionAffinity: None
+  #type: NodePort
+  #type: LoadBalancer
+  type: ClusterIP

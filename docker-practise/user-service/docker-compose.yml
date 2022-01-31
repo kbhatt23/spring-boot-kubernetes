@@ -1,0 +1,36 @@
+version: '3.7'
+services:
+  user-service:
+    image: kbhatt23/user-service:two-phase-build
+    #build:
+      #context: frontend/todo-app
+      #dockerfile: Dockerfile
+    ports:
+      - "9000:9000"
+    restart: always
+    depends_on: # Start the depends_on first
+      - mysql
+    networks:
+      - user-service-mysql
+
+  mysql:
+    image: mysql:5.7
+    ports:
+      - "3306:3306"
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_USER: kbhatt23
+      MYSQL_PASSWORD: jaishreeram
+      MYSQL_DATABASE: user-service
+    networks:
+      - user-service-mysql
+    volumes:
+      - mysql-database-volume:/var/lib/mysql
+  
+# Networks to be created to facilitate communication between containers
+networks:
+  user-service-mysql:
+  
+volumes:
+  mysql-database-volume:  

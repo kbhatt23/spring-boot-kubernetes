@@ -1,0 +1,16 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: job-using-job
+  labels:
+    app: job-using-job
+spec:
+  template:
+    spec:
+      containers:
+      - name: job-using-job
+        image: "python:rc-slim"
+        command: ["python"]
+        args: ["-c", "import time; print('starting job.'); time.sleep(30); print('done');"]
+      restartPolicy: Never
+  backoffLimit: 4      

@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: job-using-pod
+  labels:
+    app: job-using-pod
+spec:
+  containers:
+  - name: job-using-pod
+    image: "python:rc-slim"
+    command: ["python"]
+    args: ["-c", "import time; print('starting job.'); time.sleep(30); print('done');"]
+  # below added to ensure once pod compeltes the task it should not restart , pod should die once job completes  
+  restartPolicy: Never  

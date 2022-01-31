@@ -1,0 +1,23 @@
+apiVersion: extensions/v1beta1
+kind: ReplicaSet
+metadata:
+  labels:
+    app: pranaam-kubernetes
+  name: pranaam-kubernetes
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pranaam-kubernetes
+  template:
+    metadata:
+      labels:
+        app: pranaam-kubernetes
+    spec:
+      containers:
+      - image: kbhatt23/pranaam-kubernetes:0.0.1
+        imagePullPolicy: IfNotPresent
+        name: pranaam-kubernetes
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30

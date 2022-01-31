@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pranaam-kubernetes
+  labels:
+    app: pranaam-kubernetes
+spec:
+  containers:
+  - name: pranaam-kubernetes
+    image: kbhatt23/pranaam-kubernetes:0.0.1
+    ports:
+    - containerPort: 8081

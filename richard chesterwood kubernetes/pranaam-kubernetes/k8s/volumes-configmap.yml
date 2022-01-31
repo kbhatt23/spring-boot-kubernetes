@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: volumes-configmap
+data:
+  volumes-config.properties: |
+    USER_NAME: sitaramabhaktkbhatt23
+    USER_PASSWORD: jaishreeradheshyam
+  
