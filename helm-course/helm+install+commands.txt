@@ -1,0 +1,100 @@
+hhelm repo list
+
+helm repo add bitnami https://charts.bitnami.com/bitnami
+
+helm repo list
+
+helm repo remove bitnami
+
+helm repo add bitnami https://charts.bitnami.com/bitnami
+
+
+Search the repository:
+
+helm search repo mysql
+
+helm search repo database
+
+helm search repo database --versions
+
+
+Install a package:
+
+kubectl get pods
+
+(Below Two commands - In a Different Shell/Commandline window/tab)
+
+minikube ssh
+
+docker images
+
+helm install mydb bitnami/mysql
+
+Check the cluster:
+
+kubectl get pods
+
+minikube ssh
+
+docker images
+
+To check the installation status:
+
+helm status mydb
+
+helm install mydb bitnami/mysql --set auth.rootPassword=jaishreeram
+
+helm install mydb bitnami/mysql --values C:/Kanishk/learning/spring-kubernetes/kubernetes-revision/spring-boot-kubernetes/helm-course/mysql/values.yaml 
+
+helm list
+
+in different namespace
+kubectl create ns teamtwo
+helm install mydb bitnami/mysql -n teamtwo
+kubectl get pods -n teamtwo
+
+
+--------------------------------------------
+
+To Upgrade:
+helm repo update : ro update local repo from latest remote charts -> maybe someone updated the chart
+
+ROOT_PASSWORD=$(kubectl get secret --namespace default mydb-mysql -o jsonpath="{.data.mysql-root-password}" | base64 --decode)
+
+helm upgrade --namespace default mysql-release bitnami/mysql --set auth.rootPassword=$ROOT_PASSWORD
+
+-------
+
+helm uninstall mysql-release
+
+helm uninstall mysql-release -n teamtwo
+
+helm upgrade --namespace default mysql-release bitnami/mysql --set auth.rootPassword=$ROOT_PASSWORD --dry-run
+
+helm get notes mydb
+helm get values mydb
+helm get values mydb --all
+helm get values mydb --revision 1
+helm get manifest mydb --revision 1 : get k8s objects yaml
+helm history mydb
+helm rollback mydb 1
+helm install mydb bitnami/mysql --wait : wait time is 5 mins
+helm install mydb bitnami/mysql --wait --timeout 5m10s
+helm install mydb bitnami/mysql --wait --timeout 5m10s --atomic --force --cleanup-on-failure
+wait is used to force helm wait for 5 mins (or else timeout is given) and in that time k8s pods shall be sucessfully up and running
+force : by default helm restarts only modified pods and not all , force can recreate all ut will have downtime
+--cleanup-on-failure: if error occurs it clean up the revision/version data in secrets etc
+
+
+Create Custom Charts
+helm create firstchart:
+ uses default nginx chart as base, but we can use some other charts as base which are created OOB
+helm install firstchart firstchart/ 
+ : using the chart directory locally install the release
+
+kubectl --namespace default port-forward firstchart-57bdf6cb58-b2kkq 8080:80 
+
+helm package firstchart
+helm package firstchart -u : create package but also pull all the latest dependencies now, if charts directory is not latest and -u is not given it uses old deependency charts
+
+helm lint: validate yaml creeated specific to helm

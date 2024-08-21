@@ -1,0 +1,123 @@
+om shree ganeshaya namah
+om shree sita rama lakshman hanuman
+
+- Helm is a package manager for kubernetes
+
+issues with using k8s directly
+- k8s yml files are too many and managing then as a package is not easy,
+  we need to feed all yml one by one to k8s api service
+  no way to use single command to install all the k8s yml in one go
+- the yml is static in k8s
+- no versioning and revisions maintained by k8s
+  only on depoyment object it exist but limited
+  rollback,version switching etc are not easy
+- k8s object can be modified directly in cluster
+  hence it is not safe and consistent if multiple dev are using k8s cluster  
+- it do not have package manager meaning if we want a single command to start and setup the config it do not work
+  in helm we have all the softwares like k8s objects and its config values setup
+  so that with one command itself u can install all the softwares/k8s objects needed in one shot
+  also with these even default configurations are also added to these softwares
+
+benefits of helm
+- easy to run multiple softwares in single command with default config values
+  eg: mongo/redis/elastic etc had we used only ks we had to understand these tools 
+   create ks yml and then supply to k8s which is tough and repetetive
+   software experts can create charts helm package and same can be used in multiple projects ensuring time saving for different projects across world
+- dynamic using Values.yml
+  we can reuse the same template with different Values.yml hence it supports reusability and reduces boilerplate code in charts
+  in k8s we had to copy paste too many things in different yml with very few changes
+  here we can have same chart.yml with dynamic placeholders feeding values from different Values.yml
+- version supports
+- single command execution for all tools/microservices in one go
+- will be consistent as we have to use helm upgrade and not helm install or modify k8s objects directly
+- intelligent deployments: in k8s yml we need to ensure that ymls are executed in correct order
+  but helm is smart and it run them in sequnce as needed and human error chance will not occur
+  it understand the dependency tree and identify the correct sequence execution of k8s objects
+  and executes them in correct order  
+- life cycle hooks
+  something to execute before starting up pods/services or after removing etc
+  eg like liquibase do change set in db before server starts
+- security: charts are signed and validated for security constraints  
+
+- helm uses term charts as artifact for k8s package manager
+  like jfrog uses jar/war , here in helm it is called charts
+  
+- we can use helm install command with unique name per namespace
+  if we install with same name again than it fails
+  but if we create a different namespace and use that in helm install command than it works
+  it is because in kubernetes namespace each bod name can be same
+  
+- helm uses secrets to store data related to version/release
+  for example we did helm install and then helm upgrade
+  so there will be 2 releasse but the data will be present as secret in kubernetes
+  if we do helm uninstall then even these secret data for history of releases gets removed
+  while using uninstall command we can use --keep-history  
+  
+- Steps taken by command helm install behind the scenes
+a. download charts from repo
+b. load dependent charts too from repo/local
+c. update the dynamic placeholders from values.yaml provided by repo
+d. override the extra property using set command/custom values.yaml
+e. generate the kubernetes object with these values
+f. validate the generated kubernetes objects
+g. define the sequence of kubernetes objects and pass to kubectl command in that sequence
+
+- dry run: option --dry-run can be used with install and upgrade both
+  what it does is run the steps like f. meaning just generates the kubernetes objects but do not pass to kubectl
+  this way you can get the k8s object and see if all are good to go for final step
+- all commands like helm list, helm get etc uses the release data present in the secret created
+  all release/version data remains in the secret
+  so all helm commands like list,get,uninstall uses this secret data which is yaml stored in encoded format
+  
+- if you first do helm  install and then helm upgrade and set a wrong property or set wrong value in property
+  kubernetes manifest files will be created but validation will fail hence it wont call kubect api
+  so no neww ks pods/service will get updated as helm validation itself failed
+  helm history command will not just show the details of each version of release but also show the error if any
+  
+- if we use helm install command then helm do not wait for k8s objects to be started, it unblocks the command thread
+  helm install mydb bitnami/mysql --wait
+  if we use this it waits until ks objects are created and up and running
+  default wait is 5 mins or else pass timeout in command  
+  another good command is atomic option
+  in case using wait and timeout if pods were not up and running succesfully in that time window
+  then it rollout to previous stable version of release
+  very useful in CICD
+- when we use helm upgrade command with updated values it restart only the pods which was modified
+  but can use --force option to restart every pods
+  but it will have downtime as all will be recreated
+  --cleanup-on-failure
+  in case helm upgrade fails and we want to skip saving secrets for this we can do it
+  
+  Which of the following flags should be used to retain version history while uninstalling a release
+  --keep-history
+  
+Create Custom Charts
+helm create firstchart: uses default nginx chart as base, but we can use some other charts as base which are created OOB  
+  
+- structure of chart
+a. chart.yaml: have metadata info of chart
+b. charts: directory containing all the dependencies if any , other dependent charts will be downloaded here
+c. templates: directory containing kubernetes objects in dynamic yaml format
+   contains things like hpa,service,deployement,secret,configmap etc , but these can be dynamic
+d. values.yaml: values to be set as placeholders in templates yamls   
+
+- Data that is shown in helm status : what all pods created how to access them etc
+  this is rendered from Notes.txt present inside the templates directory of the chart
+- by default nginx service is clusterip based and using values.yaml or --set property we can set it to nodeport/loadbalancer
+  once updated to nodeport/loadbalancer we can see using ip or localhost and port to use nginx in browser
+  another option is using port forwarding in kubectl command that redirects to a container pod and port
+  kubectl --namespace default port-forward firstchart-57bdf6cb58-b2kkq 8080:80
+use url after above command : http://localhost:8080  
+
+- _helpers.tpl file is used to keep common things for any other template yaml file
+   it do not contains details around kubernetes objects like svc,pod etc
+   but all other template yamls can use code present in this commonly
+   meaning code common to all can be kept here and can be reused in other kubernetes yamls in templates directoryss
+   so in _helpers.tpl file create code using go language and this can be included in the other kubernetes manifest yaml
+   
+- we can keep the charts in our github/gitlab source code repo/local
+  and using command helm package we can package it as chart artifact and can be pushed to bitnami/harbour like external repository
+  this way we can share the charts among the team
+
+helm package firstchart -u : create package but also pull all the latest dependencies now, if charts directory is not latest and -u is not given it uses old deependency charts 
+this helm lint and helm package -u can be used in cicd pipeline 
